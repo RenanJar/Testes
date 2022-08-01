@@ -4,6 +4,7 @@ import com.ProvaJavaBHU.ProvaJavaBHU.DTO.MensagenNewCarDTO;
 import com.ProvaJavaBHU.ProvaJavaBHU.model.CarModel;
 import com.ProvaJavaBHU.ProvaJavaBHU.model.LogCarModel;
 import com.ProvaJavaBHU.ProvaJavaBHU.repository.LogCarRepository;
+import com.ProvaJavaBHU.ProvaJavaBHU.service.ClientService;
 import com.ProvaJavaBHU.ProvaJavaBHU.service.MensagenService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,54 +28,40 @@ public class ApiController {
     MensagenService mensagenService;
 
     @Autowired
+    LogCarRepository logCarRepository;
+
+    @Autowired
     private ModelMapper modelMapper;
 
     @Autowired
-    private LogCarRepository logCarRepository;
-
-    @Value("${urlApiExterna}")
-    String urlApiExterna;
+    private ClientService clientService;
 
     @Value("${qeueNewCar}")
     String qeueNewCar;
 
-
     @GetMapping ("/listCars")
     public ResponseEntity<List<CarModel>> getallcars(){
-        RestTemplate restTemplate= new RestTemplate();
-        var listcar = restTemplate.getForEntity(urlApiExterna,CarModel[].class).getBody();
-        return ResponseEntity.ok(Arrays.asList(listcar));
+        return ResponseEntity.ok(clientService.getallCars());
     }
 
     @GetMapping ("/logs")
     public ResponseEntity<List<LogCarModel>> getalllogs(){
-        return ResponseEntity.ok(logCarRepository.findAll());
+        return ResponseEntity.ok(clientService.getallLogs());
     }
 
     @PostMapping("/createCar")
     public ResponseEntity <CarModel> postCreateCar (@RequestBody CarModel car){
 
-        RestTemplate restTemplate= new RestTemplate();
+        CarModel request = clientService.createCar(car);
 
-        logCarRepository.save(new LogCarModel(LocalDateTime.now(),car.get_id()));
+        logCarRepository.save(new LogCarModel(LocalDateTime.now(),request.get_id()));
 
         MensagenNewCarDTO mensagenNewCarDTO = modelMapper.map(car,MensagenNewCarDTO.class);
 
         mensagenService.enviaMensagem(qeueNewCar,mensagenNewCarDTO.toString());
         
-        return ResponseEntity.status(HttpStatus.ACCEPTED)
-                .body(restTemplate.postForObject(urlApiExterna,car,CarModel.class));
+        return ResponseEntity.status(HttpStatus.CREATED).body(request);
     }
-
-    @PostMapping("/teste")
-    public ResponseEntity<MensagenNewCarDTO> postCreateCar (@RequestBody MensagenNewCarDTO mensagem) {
-        mensagenService.enviaMensagem(qeueNewCar,mensagem.toString());
-        return  ResponseEntity.status(HttpStatus.ACCEPTED).body(mensagem);
-    }
-
-
-
-
 
 
 }

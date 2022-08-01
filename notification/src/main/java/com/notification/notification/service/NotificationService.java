@@ -2,6 +2,7 @@ package com.notification.notification.service;
 
 import com.notification.notification.dto.NotificationNewCarDTO;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -14,6 +15,8 @@ public class NotificationService {
     @Value("#{'${list.Webhook}'.split(',')}")
     List<String> listWebhook;
 
+    @Autowired
+    ClientService clientService;
 
     @RabbitListener(queues = "QueueNewCar")
     public void listenerNotification(String mensagen){
@@ -23,7 +26,7 @@ public class NotificationService {
 
     public void triggerNotification(List<String> urls, NotificationNewCarDTO notification){
         RestTemplate restTemplate = new RestTemplate();
-        urls.stream().forEach(url-> restTemplate.postForEntity(url,notification, NotificationNewCarDTO.class));
+        urls.stream().forEach(url-> clientService.postNotificationToClient(url,notification));
     }
 
 

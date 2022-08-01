@@ -10,8 +10,6 @@ import java.io.Serializable;
 @Setter
 public class MensagenNewCarDTO implements Serializable{
 
-    private String _id;
-
     private String title;
 
     private String brand;
@@ -19,8 +17,6 @@ public class MensagenNewCarDTO implements Serializable{
     private String price;
 
     private Long age;
-
-    private Long __v;
 
     @Override
     public String toString() {

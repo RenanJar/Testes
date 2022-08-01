@@ -3,6 +3,7 @@ package com.ProvaJavaBHU.ProvaJavaBHU.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 
 import java.io.Serializable;
@@ -10,7 +11,6 @@ import java.io.Serializable;
 @Getter
 @Setter
 public class CarModel {
-    @Id
     private String _id;
 
     private String title;
